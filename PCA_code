@@ -1,0 +1,49 @@
+## PCA from scratch
+def mypca(n, Y):
+    latent_dim = n 
+    num_data = Y.shape[0]  
+    num_inducing = Y.shape[0] 
+    #refY = Y
+    #Y = Y - np.mean(Y)
+    evals, evecs = np.linalg.eigh(np.cov(Y.T))
+    evals = evals[::-1]
+    evecs = evecs[...,::-1]
+    W = evecs[:, :latent_dim]
+    for i in np.arange(evals.shape[0]):
+        if evals[i] < 0:
+            evals[i] = 0
+    X_mean_init = Y.dot(W).dot(np.diag(1/np.sqrt(evals[:latent_dim]))) # np.sqrt 안에 식 2가지 있음, library code랑 raw code랑 다를 수 있음
+    pca_init = X_mean_init
+    X_mean_init = np.array(X_mean_init) 
+    X_var_init = np.ones((num_data, latent_dim))
+    evecs = evecs[:,:latent_dim]
+    evals = evals[:latent_dim]
+    return pca_init, X_var_init, evals, evecs
+    
+## PCA with SVD
+def pca_svd(inputdata):
+  scaler = StandardScaler()
+  scaler.fit(inputdata)
+  inputdata = scaler.transform(inputdata)
+  u_mix, s_mix, vh_mix = np.linalg.svd(inputdata, full_matrices=False)
+  return u_mix, s_mix, vh_mix
+    
+## PCA scores
+def temporal_scores(inputdata, u_mix_mean, s_mix_mean):
+    scaler = StandardScaler()
+    scaler.fit(inputdata)
+    inputdata = pd.DataFrame(scaler.transform(inputdata))
+    Y = inputdata
+    W = u_mix_mean[:,0:2]*s_mix_mean[0:2] # project
+    pca_scores = np.transpose(Y).dot(W).dot(np.diag(1/np.sqrt(s_mix_mean[0:2])))
+    pca_scores = pd.DataFrame(pca_scores)
+    return pca_scores
+def spatial_scores(inputdata, vh_mix_mean, s_mix_mean):
+    scaler = StandardScaler()
+    scaler.fit(inputdata)
+    inputdata = pd.DataFrame(scaler.transform(inputdata))
+    Y = inputdata
+    W = np.transpose(vh_mix_mean[0:2,:]) # project
+    pca_scores = Y.dot(W).dot(np.diag(1/np.sqrt(s_mix_mean[0:2])))
+    pca_scores = pd.DataFrame(pca_scores)
+    return pca_scores
