@@ -1,0 +1,36 @@
+## Reduce dimension
+def pca_svd(inputdata): # can use mypca() instead
+  scaler = StandardScaler()
+  scaler.fit(inputdata)
+  inputdata = scaler.transform(inputdata)
+  u_mix, s_mix, vh_mix = np.linalg.svd(inputdata, full_matrices=False)
+  return u_mix, s_mix, vh_mix
+
+## BIC
+def get_gaussian_number(inputdata):
+  number_of_gaussians_for_bic = len(inputdata)  
+  n_components = np.arange(1, number_of_gaussians_for_bic)
+  models = [GMM_scikit(n, covariance_type='full', random_state=0).fit(fit_data) for n in n_components]
+  plt.plot(n_components, [m.bic(fit_data) for m in models], label='BIC')
+  bic_results = [m.bic(fit_data) for m in models]
+  number_of_gaussians = np.min(bic_results)
+  return number_of_gaussians
+
+## Create GMM and get values
+def get_GMM(inputdata): 
+  data_dimension = len(inputdata.transpose())
+  gmm_lib= GMM(n_components=number_of_gaussian, covariance_type='full', random_state=0)
+  pos, covar = get_gmm_vals(gmm_lib, fit_data, data_dimension, number_of_gaussian, label=False)
+  labels = get_gmm_labels(gmm_lib, fit_data, data_dimension, number_of_gaussian, label=False)
+  centers = pos
+  model = gmm_lib
+  
+  center_full = np.zeros((number_of_gaussian,data_dimension))
+  w_full = np.zeros((number_of_gaussian,1))
+  i = 0
+  for pos, covar, w in zip(model.means_, model.covariances_, model.weights_):
+    center_full[i,:] = pos
+    w_full[i,:] = w
+    i = i+1
+  return center_full, w_full, model, labels
+
