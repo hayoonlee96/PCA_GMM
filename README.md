@@ -9,6 +9,8 @@ PCA with GMM codes and examples
 
 3. PCA_GMM code : dimension reduction > get optimal number of gaussians (BIC) > create GMM > get GMM values (centers, labels, gaussian weights)
 
+4. PCA_GMM_example_healthy_gait_spatial
+
 ### Reference
 1. Gaussian mixture model 
 https://towardsdatascience.com/gaussian-mixture-modelling-gmm-833c88587c7f
